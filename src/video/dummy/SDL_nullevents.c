@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2019 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2018 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -29,10 +29,17 @@
 
 #include "SDL_nullvideo.h"
 #include "SDL_nullevents_c.h"
+#ifdef SDL_INPUT_LINUXEV
+#include "../../core/linux/SDL_evdev.h"
+#endif
 
 void
 DUMMY_PumpEvents(_THIS)
 {
+   #ifdef SDL_INPUT_LINUXEV
+      SDL_EVDEV_Poll();
+   #endif
+    
     /* do nothing. */
 }
 

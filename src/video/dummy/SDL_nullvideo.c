@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2019 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2018 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -36,7 +36,7 @@
  *  of this was cut-and-pasted from Stephane Peter's work in the AAlib
  *  SDL video driver.  Renamed to "DUMMY" by Sam Lantinga.
  */
-
+#include <pthread.h>
 #include "SDL_video.h"
 #include "SDL_mouse.h"
 #include "../SDL_sysvideo.h"
@@ -46,6 +46,10 @@
 #include "SDL_nullvideo.h"
 #include "SDL_nullevents_c.h"
 #include "SDL_nullframebuffer_c.h"
+
+#ifdef SDL_INPUT_LINUXEV
+#include "../../core/linux/SDL_evdev.h"
+#endif
 
 #define DUMMYVID_DRIVER_NAME "dummy"
 
@@ -113,8 +117,8 @@ DUMMY_VideoInit(_THIS)
 
     /* Use a fake 32-bpp desktop mode */
     mode.format = SDL_PIXELFORMAT_RGB888;
-    mode.w = 1024;
-    mode.h = 768;
+    mode.w = 320;
+    mode.h = 240;
     mode.refresh_rate = 0;
     mode.driverdata = NULL;
     if (SDL_AddBasicVideoDisplay(&mode) < 0) {
@@ -123,6 +127,12 @@ DUMMY_VideoInit(_THIS)
 
     SDL_zero(mode);
     SDL_AddDisplayMode(&_this->displays[0], &mode);
+
+    #ifdef SDL_INPUT_LINUXEV    
+    if (SDL_EVDEV_Init() < 0) {
+        return -1;
+    }
+    #endif  
 
     /* We're done! */
     return 0;
@@ -137,6 +147,9 @@ DUMMY_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 void
 DUMMY_VideoQuit(_THIS)
 {
+    #ifdef SDL_INPUT_LINUXEV    
+    SDL_EVDEV_Quit();
+    #endif    
 }
 
 #endif /* SDL_VIDEO_DRIVER_DUMMY */
