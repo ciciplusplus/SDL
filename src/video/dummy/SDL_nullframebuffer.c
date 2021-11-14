@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <pthread.h>
+#include <sys/param.h>
 
 #include "../../SDL_internal.h"
 
@@ -135,16 +136,28 @@ int SDL_DUMMY_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect
 
     // 1 is valid buffer, write to 0
 
-    if (rptr->full == 0){
+    //if (rptr->full == 0) {
 
-        memcpy(&rptr->buf, surface->pixels, 307200);
+        if (window->x == 0 && window->y == 0 && window->h * window->w * 4 >= 307200) {
+            memcpy(&rptr->buf, surface->pixels, 307200);
+        } else {
+            void *start_buf = &rptr->buf[window->y * 320 * 4 + window->x * 4];
+            void *start_surf = surface->pixels;
+            int copy_horiz = window->x + surface->w < 320 ? surface->w : 320 - window->x;
+            if (copy_horiz > 0) {
+                for (int i = window->y; i < MIN(window->y + surface->h, 240); i++) {
+                    int cnt = (i - window->y);
+                    memcpy(start_buf + cnt * 320 * 4, start_surf + cnt * surface->pitch, copy_horiz * 4);
+                }
+            }
+        }
 
         pthread_mutex_lock(&rptr->fulllock);
         rptr->full = 1;
         pthread_cond_broadcast(&rptr->fullsignal);
         pthread_mutex_unlock(&rptr->fulllock);
 
-    }
+    //}
 
     // Just throw the frame away if the buffer is full
 
