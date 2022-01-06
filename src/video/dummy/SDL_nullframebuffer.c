@@ -138,7 +138,7 @@ int SDL_DUMMY_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect
 
     //if (rptr->full == 0) {
 
-        if (window->x == 0 && window->y == 0 && window->h * window->w * 4 >= 307200) {
+        if (window->x == 0 && window->y == 0 && window->h * window->w * 4 == 307200) {
             memcpy(&rptr->buf, surface->pixels, 307200);
         } else {
             void *start_buf = &rptr->buf[window->y * 320 * 4 + window->x * 4];
