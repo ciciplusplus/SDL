@@ -141,13 +141,15 @@ int SDL_DUMMY_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect
         if (window->x == 0 && window->y == 0 && window->h * window->w * 4 == 307200) {
             memcpy(&rptr->buf, surface->pixels, 307200);
         } else {
-            void *start_buf = &rptr->buf[window->y * 320 * 4 + window->x * 4];
-            void *start_surf = surface->pixels;
-            int copy_horiz = window->x + surface->w < 320 ? surface->w : 320 - window->x;
-            if (copy_horiz > 0) {
-                for (int i = window->y; i < MIN(window->y + surface->h, 240); i++) {
-                    int cnt = (i - window->y);
-                    memcpy(start_buf + cnt * 320 * 4, start_surf + cnt * surface->pitch, copy_horiz * 4);
+            if (window->x >= 0 && window->y >= 0) {
+                void *start_buf = &rptr->buf[window->y * 320 * 4 + window->x * 4];
+                void *start_surf = surface->pixels;
+                int copy_horiz = window->x + surface->w < 320 ? MIN(surface->w, 320) : 320 - window->x;
+                if (copy_horiz > 0) {
+                    for (int i = window->y; i < MIN(window->y + surface->h, 240); i++) {
+                        int cnt = (i - window->y);
+                        memcpy(start_buf + cnt * 320 * 4, start_surf + cnt * surface->pitch, copy_horiz * 4);
+                    }
                 }
             }
         }
