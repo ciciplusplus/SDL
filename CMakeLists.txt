@@ -1105,6 +1105,7 @@ endif()
 # Platform-specific options and settings
 if(ANDROID)
   file(GLOB ANDROID_CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/android/*.c)
+  list(APPEND SOURCE_FILES ${ANDROID_CORE_SOURCES})
   #list(APPEND SOURCE_FILES ${ANDROID_CORE_SOURCES} ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 
   if(SDL_MISC)
